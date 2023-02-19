@@ -21,13 +21,15 @@ INSERT INTO menus (MenuName)
 VALUES
 	("Set Lunch"),
     ("Set Dinner"),
-    ("House Special");
+    ("House Special"),
+    ("New York Special");
 
 INSERT INTO menuitems (Starters, Courses, Drinks, Desserts, MenuID)
 VALUES
 	("Edamame", "Chicken teriyaki", "Soda", "Orange slice", 1),
 	("House salad", "Pesto with chicken", "Soda", "Fruit salad", 2),
-	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3);
+	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3),
+	("Cobb salad", "New York steak", "Champagne", "New York cheesecake slice", 4);
 
 INSERT INTO bookings (BookingDate, TableNumber, CustomerID)
 VALUES 
@@ -45,9 +47,9 @@ VALUES
 	("2023-02-11", 2, 2, 1, 18.50, 2),
 	("2023-02-11", 3, 3, 1, 35.00, 1),
 	("2023-02-12", 4, 2, 2, 37.00, 3),
-	("2023-02-14", 4, 3, 2, 70.00, 1),
+	("2023-02-14", 4, 4, 3, 210.00, 1),
 	("2023-02-14", 5, 3, 2, 70.00, 2),
-	("2023-02-17", 6, 3, 4, 140.00, 1),
+	("2023-02-17", 6, 3, 5, 175.00, 1),
 	("2023-02-17", 2, 1, 10, 145.00, 3),
     ("2023-02-20", 3, 3, 2, 70.00, 3);
 
