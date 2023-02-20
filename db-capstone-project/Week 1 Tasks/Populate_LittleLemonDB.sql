@@ -33,12 +33,10 @@ VALUES
 
 INSERT INTO bookings (BookingDate, TableNumber, CustomerID)
 VALUES 
-	("2023-02-01", 1, 1),
-	("2023-02-10", 1, 2),
-	("2023-02-10", 2, 4),
-	("2023-02-11", 1, 5),
-	("2023-02-11", 3, 1),
-    ("2023-04-01", 2, 2);
+	("2022-10-10", 5, 1),
+	("2022-11-12", 3, 3),
+	("2022-10-11", 2, 2),
+    ("2022-10-13", 2, 1);
 
 INSERT INTO orders (OrderDate, CustomerID, MenuID, Quantity, TotalCost, StaffID)
 VALUES 

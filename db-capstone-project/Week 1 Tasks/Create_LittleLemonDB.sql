@@ -158,6 +158,63 @@ CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`MenuItems` (
     ON UPDATE RESTRICT)
 ENGINE = InnoDB;
 
+USE `LittleLemonDB` ;
+
+-- -----------------------------------------------------
+-- Placeholder table for view `LittleLemonDB`.`OrdersView`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`OrdersView` (`OrderID` INT, `Quantity` INT, `TotalCost` INT);
+
+-- -----------------------------------------------------
+-- procedure CancelOrder
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`CancelOrder`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE CancelOrder ()
+BEGIN
+IF EXISTS(SELECT 1 FROM Orders WHERE OrderID = id)
+THEN
+DELETE FROM Orders WHERE OrderID = id; 
+SELECT CONCAT("Order ", id, " is cancelled.") AS Confirmation;
+ELSE
+SELECT CONCAT("Order ", id, " does not exist.") AS Response;
+END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure GetMaxQuantity
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`GetMaxQuantity`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE GetMaxQuantity ()
+BEGIN
+SELECT Quantity as `Max Quantity in Order` FROM Orders
+ORDER BY Quantity DESC
+LIMIT 1;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- View `LittleLemonDB`.`OrdersView`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `LittleLemonDB`.`OrdersView`;
+DROP VIEW IF EXISTS `LittleLemonDB`.`OrdersView` ;
+USE `LittleLemonDB`;
+CREATE  OR REPLACE VIEW `OrdersView` AS
+SELECT OrderID, Quantity, TotalCost
+FROM Orders
+WHERE Quantity > 2;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
@@ -186,22 +243,22 @@ INSERT INTO menus (MenuName)
 VALUES
 	("Set Lunch"),
     ("Set Dinner"),
-    ("House Special");
+    ("House Special"),
+    ("New York Special");
 
 INSERT INTO menuitems (Starters, Courses, Drinks, Desserts, MenuID)
 VALUES
 	("Edamame", "Chicken teriyaki", "Soda", "Orange slice", 1),
 	("House salad", "Pesto with chicken", "Soda", "Fruit salad", 2),
-	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3);
+	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3),
+	("Cobb salad", "New York steak", "Champagne", "New York cheesecake slice", 4);
 
 INSERT INTO bookings (BookingDate, TableNumber, CustomerID)
 VALUES 
-	("2023-02-01", 1, 1),
-	("2023-02-10", 1, 2),
-	("2023-02-10", 2, 4),
-	("2023-02-11", 1, 5),
-	("2023-02-11", 3, 1),
-    ("2023-04-01", 2, 2);
+	("2022-10-10", 5, 1),
+	("2023-11-12", 3, 3),
+	("2023-10-11", 2, 2),
+    ("2022-10-13", 2, 1);
 
 INSERT INTO orders (OrderDate, CustomerID, MenuID, Quantity, TotalCost, StaffID)
 VALUES 
@@ -210,9 +267,9 @@ VALUES
 	("2023-02-11", 2, 2, 1, 18.50, 2),
 	("2023-02-11", 3, 3, 1, 35.00, 1),
 	("2023-02-12", 4, 2, 2, 37.00, 3),
-	("2023-02-14", 4, 3, 2, 70.00, 1),
+	("2023-02-14", 4, 4, 3, 210.00, 1),
 	("2023-02-14", 5, 3, 2, 70.00, 2),
-	("2023-02-17", 6, 3, 4, 140.00, 1),
+	("2023-02-17", 6, 3, 5, 175.00, 1),
 	("2023-02-17", 2, 1, 10, 145.00, 3),
     ("2023-02-20", 3, 3, 2, 70.00, 3);
 
