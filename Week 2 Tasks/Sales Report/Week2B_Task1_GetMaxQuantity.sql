@@ -1,4 +1,4 @@
--- USE littlelemondb;
+USE littlelemondb;
 
 DELIMITER //
 CREATE PROCEDURE GetMaxQuantity()
