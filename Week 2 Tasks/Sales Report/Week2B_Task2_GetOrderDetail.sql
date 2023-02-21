@@ -1,4 +1,4 @@
--- USE littlelemondb;
+USE littlelemondb;
 
 PREPARE GetOrderDetail FROM 
 'SELECT OrderID, Quantity, TotalCost FROM Orders 

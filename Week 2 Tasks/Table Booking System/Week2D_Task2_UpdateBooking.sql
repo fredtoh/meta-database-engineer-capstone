@@ -1,4 +1,4 @@
--- USE littlelemondb;
+USE littlelemondb;
 DROP PROCEDURE IF EXISTS UpdateBooking;
 DELIMITER //
 
