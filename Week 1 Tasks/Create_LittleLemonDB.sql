@@ -45,12 +45,25 @@ CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Bookings` (
   PRIMARY KEY (`BookingID`),
   INDEX `fk_Bookings_Customers_idx` (`CustomerID` ASC) VISIBLE,
   UNIQUE INDEX `CustomerID_UNIQUE` (`CustomerID` ASC, `BookingDate` ASC) INVISIBLE,
-  UNIQUE INDEX `BookingDate_UNIQUE` (`BookingDate` ASC, `TableNumber` ASC) INVISIBLE,
   CONSTRAINT `fk_Bookings_Customers`
     FOREIGN KEY (`CustomerID`)
     REFERENCES `LittleLemonDB`.`Customers` (`CustomerID`)
     ON DELETE RESTRICT
-    ON UPDATE CASCADE)
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `LittleLemonDB`.`MenuItems`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `LittleLemonDB`.`MenuItems` ;
+
+CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`MenuItems` (
+  `MenuItemID` INT NOT NULL AUTO_INCREMENT,
+  `Starters` VARCHAR(255) NULL,
+  `Courses` VARCHAR(255) NULL,
+  `Desserts` VARCHAR(255) NULL,
+  PRIMARY KEY (`MenuItemID`))
 ENGINE = InnoDB;
 
 
@@ -62,8 +75,16 @@ DROP TABLE IF EXISTS `LittleLemonDB`.`Menus` ;
 CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`Menus` (
   `MenuID` INT NOT NULL AUTO_INCREMENT,
   `MenuName` VARCHAR(255) NOT NULL,
+  `Cuisine` VARCHAR(255) NULL,
+  `MenuItemID` INT NOT NULL,
   PRIMARY KEY (`MenuID`),
-  UNIQUE INDEX `MenuName_UNIQUE` (`MenuName` ASC) VISIBLE)
+  UNIQUE INDEX `MenuName_UNIQUE` (`MenuName` ASC) VISIBLE,
+  INDEX `fk_menus_menuitems_idx` (`MenuItemID` ASC) INVISIBLE,
+  CONSTRAINT `fk_menus_menuitems`
+    FOREIGN KEY (`MenuItemID`)
+    REFERENCES `LittleLemonDB`.`MenuItems` (`MenuItemID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -136,28 +157,6 @@ CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`DeliveryStatus` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `LittleLemonDB`.`MenuItems`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `LittleLemonDB`.`MenuItems` ;
-
-CREATE TABLE IF NOT EXISTS `LittleLemonDB`.`MenuItems` (
-  `MenuItemID` INT NOT NULL AUTO_INCREMENT,
-  `Starters` VARCHAR(255) NULL,
-  `Courses` VARCHAR(255) NULL,
-  `Drinks` VARCHAR(255) NULL,
-  `Desserts` VARCHAR(255) NULL,
-  `MenuID` INT NOT NULL,
-  PRIMARY KEY (`MenuItemID`),
-  INDEX `fk_MenuItems_Menus_idx` (`MenuID` ASC) VISIBLE,
-  CONSTRAINT `fk_MenuItems_Menus`
-    FOREIGN KEY (`MenuID`)
-    REFERENCES `LittleLemonDB`.`Menus` (`MenuID`)
-    ON DELETE CASCADE
-    ON UPDATE RESTRICT)
-ENGINE = InnoDB;
-
 USE `LittleLemonDB` ;
 
 -- -----------------------------------------------------
@@ -206,6 +205,134 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure AddValidBooking
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`AddValidBooking`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE AddValidBooking(IN booking_date DATE, IN table_no INT, IN customer INT)
+BEGIN
+START TRANSACTION;
+SELECT BookingID INTO @id FROM Bookings ORDER BY BookingID DESC LIMIT 1;
+SET @id = @id + 1;
+IF EXISTS(SELECT 1 FROM Bookings WHERE (BookingDate = booking_date AND TableNumber = table_no))
+THEN
+SELECT CONCAT("Table " , table_no, " is already booked - booking cancelled.") AS `Booking status`; 
+ROLLBACK;
+ELSE
+INSERT INTO Bookings (BookingID, BookingDate, TableNumber, CustomerID)
+VALUES (@id, booking_date, table_no, customer);
+COMMIT;
+SELECT CONCAT("Booking for table " , table_no, " is successful.") AS `Booking status`; 
+END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure AddBooking
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`AddBooking`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE AddBooking (IN booking_id INT, IN customer INT, IN table_no INT, IN booking_date DATE)
+BEGIN
+START TRANSACTION;
+IF EXISTS(SELECT 1 FROM Bookings WHERE (BookingID = booking_id))
+THEN
+SELECT CONCAT("Booking " , booking_id, " already exists - booking cancelled.") AS `Booking status`;
+ROLLBACK;
+ELSEIF EXISTS(SELECT 1 FROM Bookings WHERE (BookingDate = booking_date AND TableNumber = table_no))
+THEN SELECT CONCAT("Table " , table_no, " already booked - booking cancelled.") AS `Booking status`;
+ROLLBACK;
+ELSE
+INSERT INTO Bookings (BookingID, BookingDate, TableNumber, CustomerID)
+VALUES (booking_id, booking_date, table_no, customer);
+COMMIT;
+-- SELECT CONCAT("New booking added.") AS `Confirmation`; 
+END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure CancelBooking
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`CancelBooking`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE CancelBooking (IN booking_id INT)
+BEGIN
+START TRANSACTION;
+IF NOT EXISTS(SELECT 1 FROM Bookings WHERE (BookingID = booking_id))
+THEN
+SELECT CONCAT("Booking " , booking_id, " does not exist.") AS `Message`;
+ROLLBACK;
+ELSE
+DELETE FROM Bookings WHERE BookingID = booking_id;
+COMMIT;
+-- SELECT CONCAT("Booking ", booking_id ," cancelled.") AS `Confirmation`; 
+END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure UpdateBooking
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`UpdateBooking`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE UpdateBooking (IN booking_id INT, IN booking_date DATE)
+BEGIN
+START TRANSACTION;
+IF NOT EXISTS(SELECT 1 FROM Bookings WHERE (BookingID = booking_id))
+THEN
+SELECT CONCAT("Booking " , booking_id, " does not exist.") AS `Message`;
+ROLLBACK;
+ELSE
+UPDATE Bookings SET BookingDate = booking_date WHERE BookingID = booking_id;
+COMMIT;
+-- SELECT CONCAT("Booking ", booking_id ," updated.") AS `Confirmation`; 
+END IF; 
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure CheckBooking
+-- -----------------------------------------------------
+
+USE `LittleLemonDB`;
+DROP procedure IF EXISTS `LittleLemonDB`.`CheckBooking`;
+
+DELIMITER $$
+USE `LittleLemonDB`$$
+CREATE PROCEDURE CheckBooking(IN booking_date DATE, IN table_no INT)
+BEGIN
+IF EXISTS(SELECT 1 FROM Bookings WHERE BookingDate = booking_date AND TableNumber = table_no)
+THEN 
+SELECT CONCAT("Table " , table_no, " is already booked.") AS `Booking status`; 
+ELSE
+SELECT CONCAT("Table " , table_no, " is not yet booked.") AS `Booking status`; 
+END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- View `LittleLemonDB`.`OrdersView`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `LittleLemonDB`.`OrdersView`;
@@ -222,43 +349,46 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 -- begin attached script 'script1'
 INSERT INTO customers (FullName, ContactNumber)
 VALUES 
-	("Customer 1", 1234567),
-  ("Customer 2", 1234568),
-  ("Customer 3", 1234569),
-  ("Customer 4", 9123456),
-  ("Customer 5", 8123456),
-  ("Customer 6", 7123456),
-  ("Customer 7", 6123456),
-  ("Customer 8", 5123456),
-  ("Customer 9", 4123456),
-  ("Customer 10", 3123456);
-    
+    ("Customer 1", 1234567),
+    ("Customer 2", 1234568),
+    ("Customer 3", 1234569),
+    ("Customer 4", 9123456),
+    ("Customer 5", 8123456),
+    ("Customer 6", 7123456),
+    ("Customer 7", 6123456),
+    ("Customer 8", 5123456),
+    ("Customer 9", 4123456),
+    ("Customer 10", 3123456);
+
+INSERT INTO customers (CustomerID, FullName, ContactNumber)
+VALUES (99, "Customer 99", 9999999);
+
 INSERT INTO staff (StaffName, StaffRole, Salary)
 VALUES
-	("Waiter 1", "Waiter", 40000),
-  ("Waiter 2", "Waiter", 45000),
-  ("Waiter 3", "Waiter", 46500);
+    ("Waiter 1", "Waiter", 40000),    
+    ("Waiter 2", "Waiter", 45000),
+    ("Waiter 3", "Waiter", 46500);
 
-INSERT INTO menus (MenuName)
+INSERT INTO menuitems (Starters, Courses, Desserts)
 VALUES
-  ("Set Lunch"),
-  ("Set Dinner"),
-  ("House Special"),
-  ("New York Special");
+	("Edamame", "Chicken teriyaki", "Orange slice"),
+	("House salad", "Pesto with chicken", "Fruit salad"),
+	("Caesar salad", "Prime rib", "Tiramisu"),
+	("Cobb salad", "New York steak", "New York cheesecake slice");
 
-INSERT INTO menuitems (Starters, Courses, Drinks, Desserts, MenuID)
+INSERT INTO menus (MenuName, MenuItemID)
 VALUES
-	("Edamame", "Chicken teriyaki", "Soda", "Orange slice", 1),
-	("House salad", "Pesto with chicken", "Soda", "Fruit salad", 2),
-	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3),
-	("Cobb salad", "New York steak", "Champagne", "New York cheesecake slice", 4);
+    ("Set Lunch", 1),
+    ("Set Dinner", 2),
+    ("House Special", 3),
+    ("New York Special", 4);
 
 INSERT INTO bookings (BookingDate, TableNumber, CustomerID)
 VALUES 
 	("2022-10-10", 5, 1),
-	("2023-11-12", 3, 3),
-	("2023-10-11", 2, 2),
-  ("2022-10-13", 2, 1);
+	("2022-11-12", 3, 3),
+	("2022-10-11", 2, 2),
+	("2022-10-13", 2, 1);
 
 INSERT INTO orders (OrderDate, CustomerID, MenuID, Quantity, TotalCost, StaffID)
 VALUES 
@@ -270,7 +400,7 @@ VALUES
 	("2023-02-14", 4, 4, 3, 210.00, 1),
 	("2023-02-14", 5, 3, 2, 70.00, 2),
 	("2023-02-17", 6, 3, 5, 175.00, 1),
-  ("2023-02-20", 3, 3, 2, 70.00, 3);
+	("2023-02-20", 3, 3, 2, 70.00, 3);
 
 INSERT INTO deliverystatus (DeliveryDate, DeliveryStatus, OrderID)
 VALUES

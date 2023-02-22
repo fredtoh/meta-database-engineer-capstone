@@ -12,7 +12,7 @@ ROLLBACK;
 ELSE
 UPDATE Bookings SET BookingDate = booking_date WHERE BookingID = booking_id;
 COMMIT;
-SELECT CONCAT("Booking ", booking_id ," updated.") AS `Confirmation`; 
+-- SELECT CONCAT("Booking ", booking_id ," updated.") AS `Confirmation`; 
 END IF; 
 END //
 

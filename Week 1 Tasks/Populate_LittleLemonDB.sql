@@ -1,35 +1,38 @@
 INSERT INTO customers (FullName, ContactNumber)
 VALUES 
-	("Customer 1", 1234567),
-	("Customer 2", 1234568),
-	("Customer 3", 1234569),
-	("Customer 4", 9123456),
-	("Customer 5", 8123456),
-	("Customer 6", 7123456),
-	("Customer 7", 6123456),
-	("Customer 8", 5123456),
-	("Customer 9", 4123456),
-	("Customer 10", 3123456);
-    
+    ("Customer 1", 1234567),
+    ("Customer 2", 1234568),
+    ("Customer 3", 1234569),
+    ("Customer 4", 9123456),
+    ("Customer 5", 8123456),
+    ("Customer 6", 7123456),
+    ("Customer 7", 6123456),
+    ("Customer 8", 5123456),
+    ("Customer 9", 4123456),
+    ("Customer 10", 3123456);
+
+INSERT INTO customers (CustomerID, FullName, ContactNumber)
+VALUES (99, "Customer 99", 9999999);
+
 INSERT INTO staff (StaffName, StaffRole, Salary)
 VALUES
-	("Waiter 1", "Waiter", 40000),
-	("Waiter 2", "Waiter", 45000),
-	("Waiter 3", "Waiter", 46500);
+    ("Waiter 1", "Waiter", 40000),    
+    ("Waiter 2", "Waiter", 45000),
+    ("Waiter 3", "Waiter", 46500);
 
-INSERT INTO menus (MenuName)
+INSERT INTO menuitems (Starters, Courses, Desserts)
 VALUES
-	("Set Lunch"),
-	("Set Dinner"),
-	("House Special"),
-	("New York Special");
+	("Edamame", "Chicken teriyaki", "Orange slice"),
+	("House salad", "Pesto with chicken", "Fruit salad"),
+	("Caesar salad", "Prime rib", "Tiramisu"),
+	("Cobb salad", "New York steak", "New York cheesecake slice");
 
-INSERT INTO menuitems (Starters, Courses, Drinks, Desserts, MenuID)
+INSERT INTO menus (MenuName, MenuItemID)
 VALUES
-	("Edamame", "Chicken teriyaki", "Soda", "Orange slice", 1),
-	("House salad", "Pesto with chicken", "Soda", "Fruit salad", 2),
-	("Caesar salad", "Prime rib", "Red wine", "Tiramisu", 3),
-	("Cobb salad", "New York steak", "Champagne", "New York cheesecake slice", 4);
+    ("Set Lunch", 1),
+    ("Set Dinner", 2),
+    ("House Special", 3),
+    ("New York Special", 4);
 
 INSERT INTO bookings (BookingDate, TableNumber, CustomerID)
 VALUES 

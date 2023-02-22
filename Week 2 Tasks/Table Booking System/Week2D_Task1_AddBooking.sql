@@ -16,7 +16,7 @@ ELSE
 INSERT INTO Bookings (BookingID, BookingDate, TableNumber, CustomerID)
 VALUES (booking_id, booking_date, table_no, customer);
 COMMIT;
-SELECT CONCAT("New booking added.") AS `Confirmation`; 
+-- SELECT CONCAT("New booking added.") AS `Confirmation`; 
 END IF; 
 END //
 

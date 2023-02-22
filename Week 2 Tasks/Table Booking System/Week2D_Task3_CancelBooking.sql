@@ -12,7 +12,7 @@ ROLLBACK;
 ELSE
 DELETE FROM Bookings WHERE BookingID = booking_id;
 COMMIT;
-SELECT CONCAT("Booking ", booking_id ," cancelled.") AS `Confirmation`; 
+-- SELECT CONCAT("Booking ", booking_id ," cancelled.") AS `Confirmation`; 
 END IF;
 END //
 
